@@ -358,7 +358,7 @@ export class Renderer {
   }
 
   /**
-   * Center square shows the live Hi/Lo multiplier (1x, 2x, 4x…).
+   * Center square shows the live Hi/Lo multiplier (1.00×, 1.15×, 1.32×…).
    * Gold at 1x, green while climbing, brief red flash on bust.
    * @param {CanvasRenderingContext2D} ctx
    * @param {number} unit

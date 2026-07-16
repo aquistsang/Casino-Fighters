@@ -1,9 +1,10 @@
 /**
- * Casino Fighters — entry point
+ * Hi-Lo Fighters — entry point
  */
 
 import { Game } from './game.js';
 import { startStageVideo } from './assets.js';
+import { startFightMusic, unlockAudio } from './audio.js';
 
 const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
 const btnHi = /** @type {HTMLButtonElement} */ (document.getElementById('btnHi'));
@@ -36,6 +37,9 @@ const rtpLastEl = /** @type {HTMLElement} */ (document.getElementById('rtpLast')
 const btnCopyHash = /** @type {HTMLButtonElement} */ (document.getElementById('btnCopyHash'));
 const btnCopyClient = /** @type {HTMLButtonElement} */ (document.getElementById('btnCopyClient'));
 const skipVideosToggle = /** @type {HTMLInputElement} */ (document.getElementById('skipVideosToggle'));
+const btnCheat2pDamage = /** @type {HTMLButtonElement} */ (document.getElementById('btnCheat2pDamage'));
+const btnToggleMusic = /** @type {HTMLButtonElement} */ (document.getElementById('btnToggleMusic'));
+const btnToggleSfx = /** @type {HTMLButtonElement} */ (document.getElementById('btnToggleSfx'));
 
 const game = new Game(canvas, {
   btnHi,
@@ -68,6 +72,9 @@ const game = new Game(canvas, {
   btnCopyHash,
   btnCopyClient,
   skipVideosToggle,
+  btnCheat2pDamage,
+  btnToggleMusic,
+  btnToggleSfx,
 });
 
 overlay.hidden = false;
@@ -80,7 +87,16 @@ game.init()
     overlay.hidden = true;
     btnRestart.hidden = false;
     startStageVideo();
-    window.addEventListener('pointerdown', () => startStageVideo(), { once: true });
+    startFightMusic();
+    window.addEventListener(
+      'pointerdown',
+      () => {
+        unlockAudio();
+        startStageVideo();
+        startFightMusic();
+      },
+      { once: true }
+    );
   })
   .catch((err) => {
     console.error(err);

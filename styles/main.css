@@ -1,4 +1,4 @@
-/* Casino Fighters — arcade HUD */
+/* Hi-Lo Fighters — arcade HUD */
 
 :root {
   --bg: #0d0a14;
@@ -406,6 +406,90 @@ body {
   filter: brightness(1.15);
 }
 
+.btn-cheat-2p {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 6;
+  appearance: none;
+  padding: 6px 8px;
+  border: 2px solid #3a3048;
+  border-radius: 6px;
+  background: rgba(16, 10, 24, 0.88);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 7px;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-cheat-2p:hover {
+  color: var(--text);
+  border-color: var(--gold);
+}
+
+.btn-cheat-2p:active {
+  transform: translateY(1px);
+}
+
+.audio-toggles {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-audio {
+  appearance: none;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid #3a3048;
+  border-radius: 6px;
+  background: rgba(16, 10, 24, 0.88);
+  color: var(--gold);
+  cursor: pointer;
+  user-select: none;
+}
+
+.btn-audio-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.btn-audio:hover {
+  color: var(--text);
+  border-color: var(--gold);
+}
+
+.btn-audio:active {
+  transform: translateY(1px);
+}
+
+.btn-audio.is-muted {
+  border-color: #5a3040;
+  color: #c42828;
+  opacity: 0.85;
+}
+
+.btn-audio.is-muted::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 2px;
+  background: #c42828;
+  transform: rotate(-35deg);
+  pointer-events: none;
+}
+
 .skip-videos {
   position: absolute;
   right: 10px;
@@ -552,6 +636,20 @@ body {
   .rtp-footer {
     justify-content: center;
     text-align: center;
+  }
+
+  .btn-cheat-2p {
+    top: 6px;
+    left: 6px;
+    transform: scale(0.5);
+    transform-origin: top left;
+  }
+
+  .audio-toggles {
+    left: 6px;
+    bottom: 6px;
+    transform: scale(0.5);
+    transform-origin: bottom left;
   }
 
   .skip-videos {

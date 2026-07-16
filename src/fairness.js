@@ -2,7 +2,7 @@
  * Lightweight fairness / RTP seed display for Hi-Lo (50% fair odds).
  */
 
-const CLIENT_SEED_KEY = 'casino-fighters-client-seed';
+const CLIENT_SEED_KEY = 'hi-lo-fighters-client-seed';
 
 function randomSeed() {
   const arr = new Uint8Array(16);
@@ -23,8 +23,8 @@ export class Fairness {
     this.nonce = 0;
     this.lastRoll = null;
     this.lastOutcome = null;
-    /** Theoretical RTP for fair 50/50 Hi-Lo with even payout on win streak */
-    this.rtpPercent = 97;
+    /** Approx. RTP if cashing after first win (50% × 1.15). Climbing further lowers EV. */
+    this.rtpPercent = 58;
   }
 
   _loadClientSeed() {

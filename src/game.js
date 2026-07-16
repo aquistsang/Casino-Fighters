@@ -1,5 +1,5 @@
 /**
- * Casino Fighters — core game loop & Hi/Lo resolution.
+ * Hi-Lo Fighters — core game loop & Hi/Lo resolution.
  *
  * Flow: BETTING → (HI or LO) → RESOLVING (animations) → BETTING | GAME_OVER
  */
@@ -16,11 +16,23 @@ import {
   createOpponentAnimations,
   startStageVideo,
 } from './assets.js';
-import { loadAudio, playKickSound, playPunchSound, unlockAudio } from './audio.js';
+import {
+  loadAudio,
+  playKickSound,
+  playPunchSound,
+  playYouWinSound,
+  playYouLoseSound,
+  playCoinsCollectSound,
+  unlockAudio,
+  isMusicMuted,
+  isSfxMuted,
+  toggleMusicMuted,
+  toggleSfxMuted,
+} from './audio.js';
 import { Fairness } from './fairness.js';
 
 const ROUND_HISTORY_MAX = 16;
-const SKIP_VIDEOS_KEY = 'casino-fighters-skip-videos';
+const SKIP_VIDEOS_KEY = 'hi-lo-fighters-skip-videos';
 
 export class Game {
   /**
@@ -56,6 +68,9 @@ export class Game {
    *   btnCopyHash?: HTMLButtonElement,
    *   btnCopyClient?: HTMLButtonElement,
    *   skipVideosToggle?: HTMLInputElement,
+   *   btnCheat2pDamage?: HTMLButtonElement,
+   *   btnToggleMusic?: HTMLButtonElement,
+   *   btnToggleSfx?: HTMLButtonElement,
    * }} ui
    */
   constructor(canvas, ui) {
@@ -113,6 +128,8 @@ export class Game {
     this._bindWalletUi();
     this._bindRulesAndFairnessUi();
     this._bindSkipVideosUi();
+    this._bindCheatUi();
+    this._bindAudioTogglesUi();
 
     window.addEventListener('resize', () => this.renderer.resize());
   }
@@ -212,6 +229,7 @@ export class Game {
     this.activeStake = 0;
     this.multiplier = MULTIPLIER.START;
     this.effects.multiplierTint.active = false;
+    playCoinsCollectSound();
     this._syncHud();
   }
 
@@ -224,7 +242,7 @@ export class Game {
 
     this.multiplier = Math.max(
       MULTIPLIER.START,
-      this.multiplier * MULTIPLIER.WIN_FACTOR
+      Math.round(this.multiplier * MULTIPLIER.WIN_FACTOR * 100) / 100
     );
     this._pushMultiplierHistory(this.multiplier, true);
     this.effects.spawnMultiplierPopup(this.multiplier, true, {
@@ -317,6 +335,7 @@ export class Game {
 
     const bannerMs = 1800;
     this.effects.showSpecialBanner(bannerMs, 'YOU LOSE');
+    playYouLoseSound();
     this.effects.triggerFlash(0.6, 220);
     this.effects.triggerShake(10, 280);
 
@@ -335,13 +354,15 @@ export class Game {
     this.phase = GAME_PHASE.RESOLVING;
 
     const bannerMs = 1800;
-    this.effects.showSpecialBanner(bannerMs, 'WINNER');
+    const videoDelayMs = bannerMs + 1000; // 1s pause after YOU WIN before victory video
+    this.effects.showSpecialBanner(bannerMs, 'YOU WIN');
+    playYouWinSound();
     this.effects.triggerFlash(0.6, 220);
     this.effects.triggerShake(10, 280);
 
     window.setTimeout(() => {
       this._playCutscene(this.ui.victoryVideoEl, () => this._showRoundClear());
-    }, bannerMs);
+    }, videoDelayMs);
   }
 
   /**
@@ -507,7 +528,7 @@ export class Game {
     this.ui.overlay.classList.toggle('lose', !playerWon);
     this.ui.overlayTitle.textContent = playerWon ? 'YOU WIN!' : 'YOU LOSE';
     this.ui.overlaySub.textContent = playerWon
-      ? 'Opponent KO — Casino Fighters champion!'
+      ? 'Opponent KO — Hi-Lo Fighters champion!'
       : 'Your HP hit zero. Press Restart to fight again.';
     if (this.ui.btnRestart) {
       this.ui.btnRestart.hidden = false;
@@ -718,6 +739,80 @@ export class Game {
         /* ignore */
       }
     });
+  }
+
+  _bindCheatUi() {
+    const btn = this.ui.btnCheat2pDamage;
+    if (!btn) return;
+    btn.addEventListener('click', () => this._cheatDamageOpponent(4));
+  }
+
+  _bindAudioTogglesUi() {
+    const musicBtn = this.ui.btnToggleMusic;
+    const sfxBtn = this.ui.btnToggleSfx;
+    this._syncAudioToggleButtons();
+
+    musicBtn?.addEventListener('click', () => {
+      unlockAudio();
+      toggleMusicMuted();
+      this._syncAudioToggleButtons();
+    });
+    sfxBtn?.addEventListener('click', () => {
+      unlockAudio();
+      toggleSfxMuted();
+      this._syncAudioToggleButtons();
+    });
+  }
+
+  _syncAudioToggleButtons() {
+    const musicBtn = this.ui.btnToggleMusic;
+    const sfxBtn = this.ui.btnToggleSfx;
+    if (musicBtn) {
+      const muted = isMusicMuted();
+      musicBtn.classList.toggle('is-muted', muted);
+      musicBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      musicBtn.title = muted ? 'Unmute music' : 'Mute music';
+    }
+    if (sfxBtn) {
+      const muted = isSfxMuted();
+      sfxBtn.classList.toggle('is-muted', muted);
+      sfxBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
+      sfxBtn.title = muted ? 'Unmute sound' : 'Mute sound';
+    }
+  }
+
+  /** Dev cheat: strip health boxes from 2P (opponent). */
+  _cheatDamageOpponent(amount = 4) {
+    if (
+      this.phase === GAME_PHASE.RESOLVING ||
+      this.phase === GAME_PHASE.GAME_OVER ||
+      this.cutsceneActive ||
+      this._opponentDepleted
+    ) {
+      return;
+    }
+
+    const dealt = Math.min(amount, this.opponent.health);
+    if (dealt <= 0) return;
+
+    this.opponent.takeDamage(dealt);
+    this.opponent.playHitReaction();
+    playKickSound();
+    this.effects.spawnSparks(this.opponent.x - 40, this.opponent.y - 180, 18);
+    this.effects.spawnDamageNumber(
+      this.opponent.x,
+      this.opponent.y - 220,
+      dealt,
+      'dealt'
+    );
+    this.effects.triggerFlash(0.45, 110);
+    this.effects.triggerShake(8, 180);
+    this._syncHud();
+
+    if (this.opponent.health <= 0 && !this._opponentDepleted) {
+      this._opponentDepleted = true;
+      this.onOpponentBoxesDepleted();
+    }
   }
 
   _loadSkipVideosPref() {
