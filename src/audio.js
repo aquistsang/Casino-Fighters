@@ -123,31 +123,6 @@ export function startFightMusic() {
   }
 }
 
-/** Pause BGM for a cutscene without changing the user's mute preference. */
-export function pauseFightMusic() {
-  if (!fightMusic) return;
-  try {
-    fightMusic.pause();
-  } catch {
-    /* no-op */
-  }
-}
-
-/** Resume BGM after a cutscene (respects mute toggle). */
-export function resumeFightMusic() {
-  if (!fightMusic || musicMuted) return;
-  musicStarted = true;
-  try {
-    fightMusic.volume = MUSIC_VOL;
-    fightMusic.muted = false;
-    fightMusic.play().catch(() => {
-      /* blocked until gesture */
-    });
-  } catch {
-    /* no-op */
-  }
-}
-
 function applyMusicMute() {
   if (!fightMusic) return;
   fightMusic.volume = musicMuted ? 0 : MUSIC_VOL;

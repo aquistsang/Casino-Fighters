@@ -30,8 +30,6 @@ import {
   isSfxMuted,
   toggleMusicMuted,
   toggleSfxMuted,
-  pauseFightMusic,
-  resumeFightMusic,
 } from './audio.js';
 import { Fairness } from './fairness.js';
 
@@ -451,7 +449,7 @@ export class Game {
   /**
    * Called when the opponent's 5 yellow boxes are all gone.
    * Banner → victory video → round-clear (KEEP FIGHTING).
-   * Prezz uses a dedicated victory cutscene + pauses fight BGM until it ends.
+   * Prezz uses a dedicated victory cutscene.
    */
   onOpponentBoxesDepleted() {
     this.input.setEnabled(false);
@@ -501,7 +499,6 @@ export class Game {
     video.hidden = false;
 
     this._setCutsceneActive(true);
-    pauseFightMusic();
     this.effects.specialBanner.active = false;
     this.effects.sparks = [];
     this.effects.floatTexts = [];
@@ -521,7 +518,6 @@ export class Game {
       overlay.setAttribute('aria-hidden', 'true');
       this._setCutsceneActive(false);
       startStageVideo();
-      resumeFightMusic();
       onDone();
     };
 
