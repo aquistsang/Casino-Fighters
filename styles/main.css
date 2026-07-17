@@ -161,8 +161,10 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 20px 16px;
+  gap: clamp(6px, 1.8vh, 14px);
+  padding: clamp(8px, 2vh, 20px) clamp(8px, 2vw, 16px);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
   background:
     radial-gradient(ellipse at 50% 20%, rgba(80, 40, 120, 0.55) 0%, transparent 55%),
     linear-gradient(180deg, #1a1040 0%, #0a0618 55%, #120818 100%);
@@ -175,7 +177,7 @@ body {
 
 .char-select-eyebrow {
   margin: 0;
-  font-size: 9px;
+  font-size: clamp(6px, 1.6vw, 9px);
   letter-spacing: 0.18em;
   color: #7ec8ff;
   text-shadow: 2px 2px 0 #000;
@@ -183,16 +185,17 @@ body {
 
 .char-select-title {
   margin: 0;
-  font-size: clamp(14px, 3.2vw, 22px);
+  font-size: clamp(10px, 2.8vw, 22px);
   color: #ffe566;
   text-shadow: 3px 3px 0 #000;
+  line-height: 1.35;
 }
 
 .char-select-row {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
-  gap: 18px;
+  gap: clamp(8px, 2.5vw, 18px);
   width: 100%;
   max-width: 560px;
 }
@@ -200,8 +203,9 @@ body {
 .char-card {
   appearance: none;
   position: relative;
-  width: min(42vw, 200px);
-  padding: 10px 10px 12px;
+  flex: 0 1 auto;
+  width: min(38vw, 180px);
+  padding: clamp(6px, 1.2vh, 10px) clamp(4px, 1vw, 10px) clamp(8px, 1.4vh, 12px);
   border: 3px solid #3a2a6a;
   border-radius: 6px;
   background: linear-gradient(180deg, #243058 0%, #141828 100%);
@@ -210,6 +214,7 @@ body {
   cursor: pointer;
   box-shadow: 0 6px 0 #0a0614;
   transition: border-color 0.12s ease, transform 0.12s ease, box-shadow 0.12s ease;
+  touch-action: manipulation;
 }
 
 .char-card:hover {
@@ -229,7 +234,7 @@ body {
   position: absolute;
   top: 6px;
   left: 8px;
-  font-size: 8px;
+  font-size: clamp(5px, 1.4vw, 8px);
   color: #7ec8ff;
   text-shadow: 1px 1px 0 #000;
 }
@@ -237,8 +242,8 @@ body {
 .char-portrait {
   display: grid;
   place-items: end center;
-  height: 168px;
-  margin: 8px 0 10px;
+  height: clamp(64px, 22vh, 168px);
+  margin: clamp(4px, 1vh, 8px) 0 clamp(6px, 1.2vh, 10px);
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(60, 100, 180, 0.35) 0%, rgba(20, 20, 40, 0.2) 100%);
@@ -256,7 +261,7 @@ body {
 
 .char-name {
   display: block;
-  font-size: 11px;
+  font-size: clamp(7px, 2vw, 11px);
   letter-spacing: 0.06em;
   color: #fff;
   text-shadow: 2px 2px 0 #000;
@@ -268,17 +273,18 @@ body {
 
 .char-select-hint {
   margin: 0;
-  font-size: 8px;
+  font-size: clamp(5px, 1.5vw, 8px);
   color: var(--muted);
   line-height: 1.5;
 }
 
 .btn-fight {
   background: linear-gradient(180deg, #ff5a5a 0%, #b01818 100%);
-  font-size: 14px;
-  padding: 14px 36px;
+  font-size: clamp(10px, 2.4vw, 14px);
+  padding: clamp(8px, 1.6vh, 14px) clamp(18px, 4vw, 36px);
   box-shadow: 0 4px 0 #5a0c0c;
   letter-spacing: 0.08em;
+  touch-action: manipulation;
 }
 
 .btn-fight:hover:not(:disabled) {
@@ -755,6 +761,121 @@ body {
 }
 
 @media (max-width: 560px) {
+  body {
+    padding: 8px 6px 16px;
+  }
+
+  .app {
+    gap: 6px;
+  }
+
+  .title {
+    font-size: 13px;
+  }
+
+  .header .btn-link {
+    font-size: 8px;
+  }
+
+  .stage-wrap {
+    border-width: 2px;
+  }
+
+  .char-select {
+    gap: 5px;
+    padding: 6px 4px;
+  }
+
+  .char-select-title {
+    font-size: 9px;
+  }
+
+  .char-select-row {
+    gap: 6px;
+  }
+
+  .char-card {
+    width: min(44vw, 140px);
+    border-width: 2px;
+    box-shadow: 0 3px 0 #0a0614;
+  }
+
+  .char-card.is-selected {
+    box-shadow:
+      0 0 0 1px rgba(255, 216, 74, 0.4),
+      0 3px 0 #5a4508;
+  }
+
+  .char-card:hover {
+    transform: none;
+  }
+
+  .char-portrait {
+    height: clamp(56px, 18vh, 96px);
+    margin: 2px 0 4px;
+  }
+
+  .char-select-hint {
+    display: none;
+  }
+
+  .btn-fight {
+    font-size: 10px;
+    padding: 8px 16px;
+    box-shadow: 0 3px 0 #5a0c0c;
+  }
+
+  .controls {
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .wallet-bar {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .wallet-label {
+    font-size: 6px;
+  }
+
+  .wallet-value {
+    font-size: 11px;
+  }
+
+  .bet-controls input {
+    width: 64px;
+    font-size: 11px;
+  }
+
+  .btn-chip {
+    font-size: 8px;
+    padding: 4px 6px;
+  }
+
+  .streak-value {
+    font-size: 12px;
+  }
+
+  .overlay {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .overlay h2 {
+    font-size: 14px;
+  }
+
+  .overlay p {
+    font-size: 8px;
+    line-height: 1.5;
+  }
+
+  .btn-restart {
+    font-size: 10px;
+    padding: 10px 18px;
+  }
+
   .bet-row {
     grid-template-columns: 1fr;
     gap: 8px;
@@ -763,12 +884,17 @@ body {
   .btn-hi,
   .btn-lo,
   .btn-cashout {
-    min-height: 38px;
+    min-height: 44px;
+  }
+
+  .btn-key {
+    display: none;
   }
 
   .rtp-footer {
     justify-content: center;
     text-align: center;
+    font-size: 6px;
   }
 
   .btn-cheat-2p {
@@ -795,5 +921,39 @@ body {
   .skip-videos input {
     width: 14px;
     height: 14px;
+  }
+}
+
+/* Short viewports (iframe / landscape phone) — keep select inside the stage */
+@media (max-height: 420px) {
+  .char-select {
+    gap: 4px;
+    padding: 4px;
+  }
+
+  .char-select-eyebrow {
+    display: none;
+  }
+
+  .char-select-title {
+    font-size: 8px;
+  }
+
+  .char-portrait {
+    height: 48px;
+    margin: 2px 0;
+  }
+
+  .char-name {
+    font-size: 7px;
+  }
+
+  .char-select-hint {
+    display: none;
+  }
+
+  .btn-fight {
+    font-size: 9px;
+    padding: 6px 14px;
   }
 }
