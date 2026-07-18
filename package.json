@@ -1,10 +1,10 @@
-﻿{
-  "name": "coin-fighters",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Coin Fighters — Street Fighter-style Heads/Paws coin-flip casino mini-game",
-  "type": "module",
-  "scripts": {
-    "start": "npx --yes serve . -p 3000"
-  }
+{
+    "version":  "1.0.0",
+    "name":  "coin-fighters",
+    "description":  "Coin Fighters — Street Fighter-style Heads/Paws coin-flip casino mini-game",
+    "scripts":  {
+                    "start":  "npx --yes serve . -p 3000"
+                },
+    "type":  "module",
+    "private":  true
 }
