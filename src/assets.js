@@ -82,6 +82,18 @@ export const assets = {
   playerKick: /** @type {HTMLImageElement | HTMLCanvasElement | null} */ (null),
   /** @type {{ idle: HTMLCanvasElement, grab: HTMLCanvasElement, throwPose: HTMLCanvasElement, wig: HTMLCanvasElement } | null} */
   trump: null,
+  /** @type {HTMLCanvasElement | null} */
+  coinHeads: null,
+  /** @type {HTMLCanvasElement | null} */
+  coinTails: null,
+  /** @type {HTMLCanvasElement | null} */
+  coinMiddle: null,
+  /** @type {string} */
+  coinHeadsUrl: '',
+  /** @type {string} */
+  coinTailsUrl: '',
+  /** @type {string} */
+  coinMiddleUrl: '',
   stageBackground: /** @type {HTMLVideoElement | HTMLImageElement | null} */ (null),
   hudOverlay: /** @type {HTMLImageElement | HTMLCanvasElement | null} */ (null),
   loaded: false,
@@ -101,6 +113,9 @@ export async function loadAssets() {
     trumpGrabRaw,
     trumpThrowRaw,
     trumpWigRaw,
+    coinHeadsRaw,
+    coinTailsRaw,
+    coinMiddleRaw,
     stageBackground,
     hudRaw,
   ] = await Promise.all([
@@ -112,6 +127,9 @@ export async function loadAssets() {
     loadImage('assets/trump-grab-wig.png'),
     loadImage('assets/trump-throw-wig.png'),
     loadImage('assets/trump-wig.png'),
+    loadImage('assets/coin-heads.png'),
+    loadImage('assets/coin-tails.png'),
+    loadImage('assets/coin-middle.png'),
     loadVideo('assets/stage-background.mp4'),
     loadImage('assets/hud-overlay.png'),
   ]);
@@ -139,6 +157,19 @@ export async function loadAssets() {
     throwPose: trumpThrow,
     wig: trumpWig,
   };
+  // Normalize all coin frames into one square. The edge plate is drawn much
+  // thicker than the face rim, so squash its width to match face diameter.
+  const coins = normalizeCoinFrames(
+    keyOutGreen(coinHeadsRaw),
+    keyOutGreen(coinTailsRaw),
+    keyOutGreen(coinMiddleRaw),
+  );
+  assets.coinHeads = coins.heads;
+  assets.coinTails = coins.tails;
+  assets.coinMiddle = coins.middle;
+  assets.coinHeadsUrl = coins.heads.toDataURL('image/png');
+  assets.coinTailsUrl = coins.tails.toDataURL('image/png');
+  assets.coinMiddleUrl = coins.middle.toDataURL('image/png');
   assets.stageBackground = stageBackground;
   assets.hudOverlay = hudRaw;
   assets.loaded = true;
@@ -292,6 +323,92 @@ function cropToOpaque(src, pad = 2) {
   if (!octx) return src;
   octx.drawImage(src, minX, minY, cw, ch, 0, 0, cw, ch);
   return out;
+}
+
+/**
+ * Opaque pixel bounds (alpha > 8).
+ * @param {HTMLCanvasElement} src
+ * @returns {{ minX: number, minY: number, maxX: number, maxY: number, w: number, h: number } | null}
+ */
+function opaqueBounds(src) {
+  const ctx = src.getContext('2d');
+  if (!ctx) return null;
+  const { width: w, height: h } = src;
+  const data = ctx.getImageData(0, 0, w, h).data;
+  let minX = w;
+  let minY = h;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (data[(y * w + x) * 4 + 3] > 8) {
+        if (x < minX) minX = x;
+        if (y < minY) minY = y;
+        if (x > maxX) maxX = x;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < 0) return null;
+  return { minX, minY, maxX, maxY, w: maxX - minX + 1, h: maxY - minY + 1 };
+}
+
+/**
+ * Draw coin content into a shared square. Edge width is forced to a fraction
+ * of the face diameter so the flip doesn't balloon on the middle frame.
+ * @param {HTMLCanvasElement} heads
+ * @param {HTMLCanvasElement} tails
+ * @param {HTMLCanvasElement} middle
+ * @returns {{ heads: HTMLCanvasElement, tails: HTMLCanvasElement, middle: HTMLCanvasElement }}
+ */
+function normalizeCoinFrames(heads, tails, middle) {
+  const hb = opaqueBounds(heads);
+  const tb = opaqueBounds(tails);
+  const mb = opaqueBounds(middle);
+  const faceH = Math.max(hb?.h || 0, tb?.h || 0) || Math.max(heads.height, tails.height);
+  const faceW = Math.max(hb?.w || 0, tb?.w || 0) || faceH;
+  // Readable edge ≈ face rim (~10%) with a little extra so pixel art stays clear
+  const edgeW = Math.max(8, Math.round(faceH * 0.18));
+  // Tight square around the face — avoid empty padding that shrinks the coin on screen
+  const box = Math.max(faceW, faceH) + 8;
+
+  /**
+   * @param {HTMLCanvasElement} src
+   * @param {{ minX: number, minY: number, w: number, h: number } | null} bounds
+   * @param {number} destW
+   * @param {number} destH
+   */
+  const place = (src, bounds, destW, destH) => {
+    const out = document.createElement('canvas');
+    out.width = box;
+    out.height = box;
+    const ctx = out.getContext('2d');
+    if (!ctx) return src;
+    if (!bounds) {
+      ctx.drawImage(src, (box - src.width) / 2, (box - src.height) / 2);
+      return out;
+    }
+    const dx = (box - destW) / 2;
+    const dy = (box - destH) / 2;
+    ctx.drawImage(
+      src,
+      bounds.minX,
+      bounds.minY,
+      bounds.w,
+      bounds.h,
+      dx,
+      dy,
+      destW,
+      destH,
+    );
+    return out;
+  };
+
+  return {
+    heads: place(heads, hb, faceW, faceH),
+    tails: place(tails, tb, faceW, faceH),
+    middle: place(middle, mb, edgeW, faceH),
+  };
 }
 
 /**

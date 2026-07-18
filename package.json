@@ -1,8 +1,8 @@
-{
-  "name": "hi-lo-fighters",
+﻿{
+  "name": "coin-fighters",
   "private": true,
   "version": "1.0.0",
-  "description": "Hi-Lo Fighters — Street Fighter-style Hi/Lo casino mini-game",
+  "description": "Coin Fighters — Street Fighter-style Heads/Paws coin-flip casino mini-game",
   "type": "module",
   "scripts": {
     "start": "npx --yes serve . -p 3000"

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Hi-Lo Fighters</title>
+  <title>Coin Fighters</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
@@ -12,7 +12,7 @@
 <body>
   <div class="app">
     <header class="header">
-      <h1 class="title">HI-LO FIGHTERS</h1>
+      <h1 class="title">COIN FIGHTERS</h1>
       <button type="button" class="btn-link" id="btnHowToPlay">How to play</button>
     </header>
 
@@ -21,7 +21,7 @@
         <button type="button" class="btn-cheat" id="btnCheat2pDamage" title="Dev: 2P loses 4 health boxes">−4 2P</button>
         <button type="button" class="btn-cheat" id="btnCheat1pDamage" title="Dev: 1P loses 4 health boxes">−4 1P</button>
       </div>
-      <canvas id="gameCanvas" width="960" height="540" aria-label="Hi-Lo Fighters arena"></canvas>
+      <canvas id="gameCanvas" width="960" height="540" aria-label="Coin Fighters arena"></canvas>
 
       <div id="victoryOverlay" class="victory-overlay" hidden aria-hidden="true">
         <video
@@ -85,6 +85,13 @@
         <button type="button" class="btn btn-fight" id="btnFight">FIGHT!</button>
       </div>
 
+      <div id="coinFlipOverlay" class="coin-flip-overlay" hidden aria-hidden="true">
+        <div class="coin-flip-stage">
+          <img id="coinFlipImg" class="coin-flip-img" alt="Coin flip" width="220" height="220" draggable="false" />
+        </div>
+        <button type="button" class="btn btn-skip-flip" id="btnSkipFlip">SKIP</button>
+      </div>
+
       <div id="gameOverlay" class="overlay" hidden>
         <h2 id="overlayTitle">YOU WIN!</h2>
         <p id="overlaySub"></p>
@@ -104,13 +111,13 @@
         </button>
       </div>
 
-      <label class="skip-videos" title="Skip win/lose cutscene videos">
+      <label class="skip-videos" title="Skip cutscene videos and coin flip spin (still shows result)">
         <input type="checkbox" id="skipVideosToggle" />
         <span>Skip video</span>
       </label>
     </div>
 
-    <section class="controls" aria-label="Hi Lo controls">
+    <section class="controls" aria-label="Coin flip controls">
       <div class="wallet-bar" aria-label="Balance and bet">
         <div class="wallet-stat">
           <span class="wallet-label">Balance</span>
@@ -140,21 +147,21 @@
       <div class="round-history" id="roundHistory" aria-label="Win loss history"></div>
 
       <div class="bet-row">
-        <button type="button" class="btn btn-hi" id="btnHi" title="Keyboard 1">
+        <button type="button" class="btn btn-hi" id="btnHi" title="Keyboard 1 — Heads">
           <span class="btn-key">1</span>
-          <span class="btn-label">HI</span>
+          <span class="btn-label">HEADS</span>
         </button>
         <button type="button" class="btn btn-cashout" id="btnCashOut" disabled title="Bank bet × multiplier">
           <span class="btn-label">CASH OUT</span>
         </button>
-        <button type="button" class="btn btn-lo" id="btnLo" title="Keyboard 2">
+        <button type="button" class="btn btn-lo" id="btnLo" title="Keyboard 2 — Paws">
           <span class="btn-key">2</span>
-          <span class="btn-label">LO</span>
+          <span class="btn-label">PAWS</span>
         </button>
       </div>
 
       <p class="help">
-        Guess <strong>HI</strong> or <strong>LO</strong>. Correct → climb the multiplier.
+        Guess <strong>HEADS</strong> or <strong>PAWS</strong>. Correct → climb the multiplier.
         Wrong → lose your bet and a life box.
         <strong>Cash out</strong> to bank <em>bet × multiplier</em>.
         <button type="button" class="btn-link inline" id="btnHowToPlayHelp">Full rules</button>
@@ -162,7 +169,8 @@
     </section>
 
     <footer class="rtp-footer" aria-label="RTP and fairness">
-      <span>RTP <strong id="rtpPercent">58%</strong></span>
+      <span>RTP <strong id="rtpPercent">55%</strong></span>
+      <span>Edge <strong id="rtpEdge">5%</strong></span>
       <span class="rtp-copy-row">
         Hash
         <strong id="rtpHash" class="rtp-mono">—</strong>
@@ -182,13 +190,13 @@
     <div class="modal-card" role="dialog" aria-labelledby="howToPlayTitle" aria-modal="true">
       <h2 id="howToPlayTitle">How to play</h2>
       <ol class="rules-list">
-        <li>Set a <strong>bet</strong> from your balance, then guess <strong>HI</strong> or <strong>LO</strong> (50/50).</li>
+        <li>Set a <strong>bet</strong> from your balance, then guess <strong>HEADS</strong> or <strong>PAWS</strong>.</li>
         <li>Correct → your fighter hits and removes one of their yellow boxes; your <strong>multiplier climbs</strong> (about +15% per win — e.g. 1.15×, 1.32×, 1.52×…).</li>
         <li><strong>Cash out</strong> anytime the multiplier is above 1x to bank <strong>bet × multiplier</strong> into your balance.</li>
         <li>Wrong → you <strong>lose the bet</strong> and one of <strong>your</strong> life boxes; multiplier resets to 1x.</li>
         <li>Empty their boxes → <strong>round clear</strong>. Your streak / climb stays in play — hit <strong>Keep fighting</strong> to refill life boxes and continue (or cash out).</li>
         <li>Empty yours → you lose the fight.</li>
-        <li>Fairness: outcomes use a committed server-seed hash + your client seed + nonce (copy them below).</li>
+        <li><strong>Provably fair:</strong> each flip is SHA-256(server seed : client seed : nonce). A <strong>5% house edge</strong> sets win chance to 47.5% (not a raw 50/50). Verify with the hash / client / nonce below.</li>
       </ol>
       <button type="button" class="btn btn-restart" id="btnCloseHowToPlay">Got it</button>
     </div>

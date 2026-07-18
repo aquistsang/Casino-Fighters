@@ -1,10 +1,10 @@
-﻿# Hi-Lo Fighters
+﻿# Coin Fighters
 
-Street Fighter-inspired web mini-game fused with Hi/Lo casino mechanics.
+Street Fighter-inspired web mini-game fused with Heads/Paws coin-flip casino mechanics.
 
 ## Play
 
-Bet **HI** or **LO** (buttons or keys `1` / `2`). Correct guess → your fighter attacks and the multiplier climbs (~+15% per win). Wrong guess → they hit you and you lose the stake. Cash out anytime to bank **bet × multiplier**.
+Bet **HEADS** or **PAWS** (buttons or keys `1` / `2`). Correct guess → your fighter attacks and the multiplier climbs (~+15% per win). Wrong guess → they hit you and you lose the stake. Cash out anytime to bank **bet × multiplier**.
 
 ## Stack
 
@@ -18,4 +18,6 @@ Bet **HI** or **LO** (buttons or keys `1` / `2`). Correct guess → your fighter
 npx serve .
 ```
 
-Open the printed localhost URL.
+## Live
+
+https://coin-fighters.vercel.app

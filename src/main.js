@@ -1,5 +1,5 @@
 /**
- * Hi-Lo Fighters — entry point
+ * Coin Fighters — entry point
  */
 
 import { Game } from './game.js';
@@ -32,6 +32,7 @@ const btnHowToPlayHelp = /** @type {HTMLButtonElement} */ (document.getElementBy
 const howToPlayModal = /** @type {HTMLElement} */ (document.getElementById('howToPlayModal'));
 const btnCloseHowToPlay = /** @type {HTMLButtonElement} */ (document.getElementById('btnCloseHowToPlay'));
 const rtpPercentEl = /** @type {HTMLElement} */ (document.getElementById('rtpPercent'));
+const rtpEdgeEl = /** @type {HTMLElement} */ (document.getElementById('rtpEdge'));
 const rtpHashEl = /** @type {HTMLElement} */ (document.getElementById('rtpHash'));
 const rtpClientEl = /** @type {HTMLElement} */ (document.getElementById('rtpClient'));
 const rtpNonceEl = /** @type {HTMLElement} */ (document.getElementById('rtpNonce'));
@@ -47,6 +48,9 @@ const charSelect = /** @type {HTMLElement} */ (document.getElementById('charSele
 const portraitRookie = /** @type {HTMLImageElement} */ (document.getElementById('portraitRookie'));
 const portraitTrump = /** @type {HTMLImageElement} */ (document.getElementById('portraitTrump'));
 const btnFight = /** @type {HTMLButtonElement} */ (document.getElementById('btnFight'));
+const coinFlipOverlay = /** @type {HTMLElement} */ (document.getElementById('coinFlipOverlay'));
+const coinFlipImg = /** @type {HTMLImageElement} */ (document.getElementById('coinFlipImg'));
+const btnSkipFlip = /** @type {HTMLButtonElement} */ (document.getElementById('btnSkipFlip'));
 const charCards = /** @type {HTMLElement[]} */ ([
   ...document.querySelectorAll('.char-card[data-char]'),
 ]);
@@ -77,6 +81,7 @@ const game = new Game(canvas, {
   howToPlayModal,
   btnCloseHowToPlay,
   rtpPercentEl,
+  rtpEdgeEl,
   rtpHashEl,
   rtpClientEl,
   rtpNonceEl,
@@ -93,6 +98,9 @@ const game = new Game(canvas, {
   portraitRookie,
   portraitTrump,
   btnFight,
+  coinFlipOverlay,
+  coinFlipImg,
+  btnSkipFlip,
 });
 
 overlay.hidden = false;
