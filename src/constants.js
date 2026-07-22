@@ -100,10 +100,10 @@ export const HUD = {
 export const MULTIPLIER = {
   START: 1,
   /**
-   * Growth per correct Heads/Paws. Was 2.0 (1→2→4→8→16→32), which hit huge mults too fast.
-   * 1.15 keeps typical cashouts around 1.0–1.8× (2× needs ~5 wins in a row).
+   * Growth per correct Heads/Paws.
+   * Tuned with HOUSE so first-cashout RTP ≈ WIN_CHANCE × WIN_FACTOR ≈ 97%.
    */
-  WIN_FACTOR: 1.15,
+  WIN_FACTOR: 2,
   HISTORY_MAX: 8,
   /** Popup spawn — left side between HUD and player head (below health bar) */
   POPUP_X: 118,
@@ -113,13 +113,13 @@ export const MULTIPLIER = {
 /**
  * Casino house edge on the coin flip.
  * Fair coin would be 50% win chance; EDGE reduces P(win) for the house.
- * First-cashout RTP ≈ WIN_CHANCE × WIN_FACTOR (e.g. 0.475 × 1.15 ≈ 54.6%).
+ * First-cashout RTP ≈ WIN_CHANCE × WIN_FACTOR (0.485 × 2.0 = 97%).
  */
 export const HOUSE = {
-  /** 5% edge vs a fair even-money coin */
-  EDGE: 0.05,
+  /** 3% edge vs a fair even-money coin */
+  EDGE: 0.03,
   /** P(player wins this flip) */
-  WIN_CHANCE: 0.5 * (1 - 0.05),
+  WIN_CHANCE: 0.5 * (1 - 0.03),
 };
 
 /** Play-money coin-flip wallet */

@@ -51,6 +51,7 @@ const btnFight = /** @type {HTMLButtonElement} */ (document.getElementById('btnF
 const coinFlipOverlay = /** @type {HTMLElement} */ (document.getElementById('coinFlipOverlay'));
 const coinFlipImg = /** @type {HTMLImageElement} */ (document.getElementById('coinFlipImg'));
 const btnSkipFlip = /** @type {HTMLButtonElement} */ (document.getElementById('btnSkipFlip'));
+const btnSkipFight = /** @type {HTMLButtonElement} */ (document.getElementById('btnSkipFight'));
 const charCards = /** @type {HTMLElement[]} */ ([
   ...document.querySelectorAll('.char-card[data-char]'),
 ]);
@@ -101,6 +102,7 @@ const game = new Game(canvas, {
   coinFlipOverlay,
   coinFlipImg,
   btnSkipFlip,
+  btnSkipFight,
 });
 
 overlay.hidden = false;

@@ -92,6 +92,8 @@
         <button type="button" class="btn btn-skip-flip" id="btnSkipFlip">SKIP</button>
       </div>
 
+      <button type="button" class="btn btn-skip-fight" id="btnSkipFight" hidden>SKIP</button>
+
       <div id="gameOverlay" class="overlay" hidden>
         <h2 id="overlayTitle">YOU WIN!</h2>
         <p id="overlaySub"></p>
@@ -118,13 +120,13 @@
     </div>
 
     <section class="controls" aria-label="Coin flip controls">
-      <div class="wallet-bar" aria-label="Balance and bet">
-        <div class="wallet-stat">
-          <span class="wallet-label">Balance</span>
-          <span class="wallet-value" id="balanceValue">1000</span>
+      <div class="wallet-hud" aria-label="Balance, bet, and win">
+        <div class="hud-cell">
+          <span class="hud-label">Balance</span>
+          <span class="hud-value" id="balanceValue">1000</span>
         </div>
-        <div class="wallet-stat wallet-bet">
-          <span class="wallet-label">Bet</span>
+        <div class="hud-cell hud-bet">
+          <span class="hud-label">Bet</span>
           <div class="bet-controls">
             <button type="button" class="btn-chip" id="btnBetHalf" title="Half bet">½</button>
             <input type="number" id="betInput" min="1" max="500" step="1" value="10" aria-label="Bet amount" />
@@ -132,19 +134,19 @@
             <button type="button" class="btn-chip" id="btnBetMax" title="Max bet">MAX</button>
           </div>
         </div>
-        <div class="wallet-stat">
-          <span class="wallet-label">Win</span>
-          <span class="wallet-value wallet-win" id="winValue">10</span>
+        <div class="hud-cell">
+          <span class="hud-label">Win</span>
+          <span class="hud-value hud-win" id="winValue">10</span>
         </div>
       </div>
 
-      <div class="streak-panel">
-        <span class="streak-label">STREAK</span>
-        <span class="streak-value" id="streakValue">0</span>
-        <span class="streak-hint">correct in a row</span>
+      <div class="meta-row">
+        <div class="streak-panel">
+          <span class="streak-label">Streak</span>
+          <span class="streak-value" id="streakValue">0</span>
+        </div>
+        <div class="round-history" id="roundHistory" aria-label="Win loss history"></div>
       </div>
-
-      <div class="round-history" id="roundHistory" aria-label="Win loss history"></div>
 
       <div class="bet-row">
         <button type="button" class="btn btn-hi" id="btnHi" title="Keyboard 1 — Heads">
@@ -169,8 +171,8 @@
     </section>
 
     <footer class="rtp-footer" aria-label="RTP and fairness">
-      <span>RTP <strong id="rtpPercent">55%</strong></span>
-      <span>Edge <strong id="rtpEdge">5%</strong></span>
+      <span>RTP <strong id="rtpPercent">97%</strong></span>
+      <span>Edge <strong id="rtpEdge">3%</strong></span>
       <span class="rtp-copy-row">
         Hash
         <strong id="rtpHash" class="rtp-mono">—</strong>
@@ -191,12 +193,12 @@
       <h2 id="howToPlayTitle">How to play</h2>
       <ol class="rules-list">
         <li>Set a <strong>bet</strong> from your balance, then guess <strong>HEADS</strong> or <strong>PAWS</strong>.</li>
-        <li>Correct → your fighter hits and removes one of their yellow boxes; your <strong>multiplier climbs</strong> (about +15% per win — e.g. 1.15×, 1.32×, 1.52×…).</li>
+        <li>Correct → your fighter hits and removes one of their yellow boxes; your <strong>multiplier climbs</strong> (about 2× per win — e.g. 1× → 2× → 4×…).</li>
         <li><strong>Cash out</strong> anytime the multiplier is above 1x to bank <strong>bet × multiplier</strong> into your balance.</li>
         <li>Wrong → you <strong>lose the bet</strong> and one of <strong>your</strong> life boxes; multiplier resets to 1x.</li>
         <li>Empty their boxes → <strong>round clear</strong>. Your streak / climb stays in play — hit <strong>Keep fighting</strong> to refill life boxes and continue (or cash out).</li>
         <li>Empty yours → you lose the fight.</li>
-        <li><strong>Provably fair:</strong> each flip is SHA-256(server seed : client seed : nonce). A <strong>5% house edge</strong> sets win chance to 47.5% (not a raw 50/50). Verify with the hash / client / nonce below.</li>
+        <li><strong>Provably fair:</strong> each flip is SHA-256(server seed : client seed : nonce). A <strong>3% house edge</strong> sets win chance to 48.5% (not a raw 50/50). First-cashout RTP ≈ 97%. Verify with the hash / client / nonce below.</li>
       </ol>
       <button type="button" class="btn btn-restart" id="btnCloseHowToPlay">Got it</button>
     </div>

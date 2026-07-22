@@ -80,6 +80,7 @@ export class Game {
    *   coinFlipOverlay?: HTMLElement,
    *   coinFlipImg?: HTMLImageElement,
    *   btnSkipFlip?: HTMLButtonElement,
+   *   btnSkipFight?: HTMLButtonElement,
    *   btnToggleMusic?: HTMLButtonElement,
    *   btnToggleSfx?: HTMLButtonElement,
    *   charSelect?: HTMLElement,
@@ -121,6 +122,9 @@ export class Game {
     this.wigAttack = null;
     /** @type {null | { x: number, y: number, startX: number, startY: number, endX: number, endY: number, t: number, dur: number, image: HTMLCanvasElement, rotation: number, scale: number }} */
     this.projectile = null;
+    /** Fight resolve animation can be skipped (like coin flip). */
+    this._fightSkipArmed = false;
+    this._fightResolveFinished = false;
 
     // Feet planted on the stone floor tiles
     this.player = new Fighter({
@@ -392,6 +396,14 @@ export class Game {
     });
     this._syncHud();
 
+    if (this.skipVideos) {
+      this._applyWinImpact();
+      this._afterResolve();
+      return;
+    }
+
+    this._armFightSkip();
+
     if (getCharacter(this.characterId).attackStyle === 'wig') {
       this._startWigAttack();
       return;
@@ -399,7 +411,7 @@ export class Game {
 
     this.player.playKickAttack(this.opponent.x, {
       onImpact: () => this._applyWinImpact(),
-      onComplete: () => this._afterResolve(),
+      onComplete: () => this._finishFightResolve(),
     });
   }
 
@@ -470,7 +482,7 @@ export class Game {
         this._applyWinImpact();
         this.player.setIdle();
         this.wigAttack = null;
-        this._afterResolve();
+        this._finishFightResolve();
         return;
       }
     }
@@ -494,7 +506,7 @@ export class Game {
         this._applyWinImpact();
         this.player.setIdle();
         this.wigAttack = null;
-        this._afterResolve();
+        this._finishFightResolve();
       }
     }
   }
@@ -510,27 +522,101 @@ export class Game {
     this.multiplier = MULTIPLIER.START;
     this._syncHud();
 
-    this.opponent.playPunchAttack(this.player.x, {
-      onImpact: () => {
-        playPunchSound();
-        this.player.takeDamage(HEALTH.WIN_COST);
-        this.player.playHitReaction();
+    const applyLossImpact = () => {
+      playPunchSound();
+      this.player.takeDamage(HEALTH.WIN_COST);
+      this.player.playHitReaction();
 
-        this.effects.spawnSparks(this.player.x + 40, this.player.y - 160, 14);
-        this.effects.spawnDamageNumber(
-          this.player.x,
-          this.player.y - 200,
-          HEALTH.WIN_COST,
-          'received'
-        );
-        this.effects.triggerFlash(0.35, 90);
-        this.effects.triggerShake(7, 180);
-      },
-      onComplete: () => this._afterResolve(),
+      this.effects.spawnSparks(this.player.x + 40, this.player.y - 160, 14);
+      this.effects.spawnDamageNumber(
+        this.player.x,
+        this.player.y - 200,
+        HEALTH.WIN_COST,
+        'received'
+      );
+      this.effects.triggerFlash(0.35, 90);
+      this.effects.triggerShake(7, 180);
+    };
+
+    if (this.skipVideos) {
+      applyLossImpact();
+      this._afterResolve();
+      return;
+    }
+
+    this._armFightSkip();
+    this.opponent.playPunchAttack(this.player.x, {
+      onImpact: applyLossImpact,
+      onComplete: () => this._finishFightResolve(),
     });
   }
 
+  _armFightSkip() {
+    this._fightSkipArmed = true;
+    this._fightResolveFinished = false;
+    const btn = this.ui.btnSkipFight;
+    if (btn) btn.hidden = false;
+  }
+
+  _disarmFightSkip() {
+    this._fightSkipArmed = false;
+    const btn = this.ui.btnSkipFight;
+    if (btn) btn.hidden = true;
+  }
+
+  /**
+   * Skip post-flip fight animation: apply pending impact, then finish resolve.
+   */
+  _skipFightAnimation() {
+    if (!this._fightSkipArmed || this._fightResolveFinished) return;
+    this._disarmFightSkip();
+
+    // Wig attack path
+    if (this.wigAttack) {
+      if (!this.wigAttack.impactDone) {
+        this.wigAttack.impactDone = true;
+        this._applyWinImpact();
+      }
+      this.projectile = null;
+      this.wigAttack = null;
+      this.player.motion = null;
+      this.opponent.motion = null;
+      this.player.setIdle();
+      this.opponent.setIdle();
+      this._finishFightResolve();
+      return;
+    }
+
+    // Kick / punch lunge on either fighter
+    const attacker = this.player.motion ? this.player : this.opponent.motion ? this.opponent : null;
+    if (attacker?.motion) {
+      const m = attacker.motion;
+      if (!m.impactFired) {
+        m.impactFired = true;
+        m.onImpact?.();
+      }
+      // Drop callbacks so delayed onComplete cannot double-finish
+      m.onComplete = undefined;
+      m.onImpact = undefined;
+    }
+
+    this.player.motion = null;
+    this.opponent.motion = null;
+    this.player.setIdle();
+    this.opponent.setIdle();
+    this._finishFightResolve();
+  }
+
+  /** Single entry so skip + natural complete cannot double-run. */
+  _finishFightResolve() {
+    if (this._fightResolveFinished) return;
+    this._fightResolveFinished = true;
+    this._disarmFightSkip();
+    this._afterResolve();
+  }
+
   _afterResolve() {
+    this._disarmFightSkip();
     if (this.player.health <= 0) {
       this.onPlayerBoxesDepleted();
       return;
@@ -1038,6 +1124,7 @@ export class Game {
       input.addEventListener('input', () => this._syncWalletUi());
     }
     this.ui.btnCashOut?.addEventListener('click', () => this.cashOut());
+    this.ui.btnSkipFight?.addEventListener('click', () => this._skipFightAnimation());
     this.ui.btnBetHalf?.addEventListener('click', () => {
       this.bet = this._clampBet(Math.floor(this._readBetInput() / 2));
       this._syncWalletUi();
